@@ -5,6 +5,9 @@ const exphbs = require("express-handlebars");
 const path = require("path");
 const passport = require("passport");
 const session = require("express-session");
+const mongoose = require("mongoose");
+const MongoStore = require("connect-mongo");
+
 // Load config
 dotenv.config({ path: "./config/config.env" });
 
@@ -32,6 +35,8 @@ app.use(
     secret: "keyboard cat",
     resave: false,
     saveUninitialized: false,
+    // saving Session to MongoDB
+    store: MongoStore.create({ mongoUrl: process.env.MONGO_DB }),
   })
 );
 
