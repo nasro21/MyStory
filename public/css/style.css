@@ -9,3 +9,10 @@ p {
 .fa-small {
   font-size: 16px im !important;
 }
+.btn-float {
+  float: left;
+  margin: right 10px;
+}
+.ing-small {
+  width: 180;
+}
