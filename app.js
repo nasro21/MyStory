@@ -7,6 +7,7 @@ const passport = require("passport");
 const session = require("express-session");
 const mongoose = require("mongoose");
 const MongoStore = require("connect-mongo");
+const methodOverride = require("method-override");
 
 // Load config
 dotenv.config({ path: "./config/config.env" });
@@ -21,8 +22,20 @@ connectDB();
 const app = express();
 
 // Body parser
-app.use(express.urlencoded({ extenden: false }));
+app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
+
+// Methode override
+app.use(
+  methodOverride(function (req, res) {
+    if (req.body && typeof req.body === "object" && "_method" in req.body) {
+      // look in urlencoded POST bodies and delete it
+      let method = req.body._method;
+      delete req.body._method;
+      return method;
+    }
+  })
+);
 
 // Logging with MORGAN
 if (process.env.NODE_ENV === "development") {
@@ -30,7 +43,13 @@ if (process.env.NODE_ENV === "development") {
 }
 
 // Handlebars Helpers
-const { formatDate, stripTags, truncate } = require("./helpers/hbs");
+const {
+  formatDate,
+  stripTags,
+  truncate,
+  editIcon,
+  select,
+} = require("./helpers/hbs");
 
 // Hndlebars
 app.engine(
@@ -40,6 +59,8 @@ app.engine(
       formatDate,
       stripTags,
       truncate,
+      editIcon,
+      select,
     },
     defaultLayout: "main",
     extname: ".hbs",
@@ -61,6 +82,12 @@ app.use(
 // Passport middleware
 app.use(passport.initialize());
 app.use(passport.session());
+
+// Set global var
+app.use(function (req, res, next) {
+  res.locals.user = req.user || null;
+  next();
+});
 
 // Static Folder
 app.use(express.static(path.join(__dirname, "public")));
