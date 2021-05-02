@@ -117,4 +117,21 @@ router.delete("/:id", ensureAuth, async (req, res) => {
   }
 });
 
+// @desc    User stories
+// @router  GET /stories/user/:user
+router.get("/user/:userId", ensureAuth, async (req, res) => {
+  try {
+    const stories = await Story.find({
+      user: req.params.userId,
+      status: "public",
+    })
+      .populate("user")
+      .lean();
+    res.render("stories/index", { stories });
+  } catch (err) {
+    console.error(err);
+    return res.render("error/500");
+  }
+});
+
 module.exports = router;
